@@ -36,7 +36,7 @@ export const CartSidebar = ({ open, onClose }: CartSidebarProps) => {
     });
     message += `*Total: R$ ${total.toFixed(2)}*\n\nGostaria de finalizar este pedido!`;
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/5511999999999?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/5511933358701?text=${encodedMessage}`;
     window.open(whatsappUrl, "_blank");
   };
 
