@@ -6,11 +6,13 @@ export const Footer = () => {
   return (
     <footer className="bg-card border-t border-border mt-20">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-xl font-bold mb-4">TWENTY TWO</h3>
+        <div className="flex flex-col items-center justify-center text-center gap-8">
+          
+          {/* Logo + Texto + Botão Admin */}
+          <div className="flex flex-col items-center">
+            <h3 className="text-xl font-bold mb-2">TWENTY TWO</h3>
             <p className="text-muted-foreground text-sm mb-4">
-              As ruas vestem Twenty Two
+            As ruas vestem Twenty Two
             </p>
             <Link to="/admin/login">
               <Button variant="outline" size="sm" className="gap-2">
@@ -20,22 +22,19 @@ export const Footer = () => {
             </Link>
           </div>
 
-          <div>
-
-           
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-4 uppercase text-sm text-muted-foreground"></h4>
-            <div className="flex gap-4">
-              <a href="https://www.instagram.com/twentytwo_imports/" className="hover:text-primary transition-all hover:scale-110">
-                <Instagram className="h-5 w-5" />
-              </a>
-            </div>
+          {/* Social */}
+          <div className="flex gap-6 justify-center">
+            <a
+              href="https://www.instagram.com/twentytwo_imports/"
+              className="hover:text-primary transition-all hover:scale-110"
+            >
+              <Instagram className="h-6 w-6" />
+            </a>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
+        {/* Rodapé final */}
+        <div className="mt-10 pt-8 border-t border-border text-center text-sm text-muted-foreground">
           © 2025 Twenty Two Imports. Todos os direitos reservados.
         </div>
       </div>
