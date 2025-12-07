@@ -146,37 +146,14 @@ const Home = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
+
+      
       {/* Overlay escuro para melhorar a leitura */}
       <div className="absolute inset-0 bg-black/70"></div>
       {/* Conteúdo acima do overlay */}
       <div className="relative z-10">
         <Header />
-        {/* === Seção Principal TWENTY TWO === */}
-        <section className="pt-20 flex flex-col items-center justify-center text-center min-h-[90vh] px-6">
-          <img
-            src={logo}
-            alt="Twenty Two Imports"
-            className="w-[260px] md:w-[320px] mb-8 animate-fade-in"
-          />
-          <h1 className="text-4xl md:text-6xl font-Oswald, sans-serif mb-6 animate-fade-in-up">
-            A Vida Real está nas Ruas
-          </h1>
-          <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl animate-fade-in-up">
-            Peças exclusivas que refletem a autenticidade da cultura urbana.<br />
-            Qualidade e estilo premium.
-          </p>
-          <Link to="/catalogo">
-            <Button
-              size="lg"
-              className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:scale-105 transition-transform animate-fade-in-up"
-            >
-              EXPLORAR COLEÇÃO →
-            </Button>
-          </Link>
-        </section>
-        
-        <hr className="my-8 border-gray-700" />
-        
+
         {/* Carrossel */}
         <section className="pt-20">
           <Carousel className="w-full animate-fade-in">
@@ -209,6 +186,33 @@ const Home = () => {
         </section>
 
         <hr className="my-8 border-gray-700" />
+        {/* === Seção Principal TWENTY TWO === */}
+        <section className="pt-20 flex flex-col items-center justify-center text-center min-h-[90vh] px-6">
+          <img
+            src={logo}
+            alt="Twenty Two Imports"
+            className="w-[260px] md:w-[320px] mb-8 animate-fade-in"
+          />
+          <h1 className="text-4xl md:text-6xl font-Oswald, sans-serif mb-6 animate-fade-in-up">
+            A Vida Real está nas Ruas
+          </h1>
+          <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl animate-fade-in-up">
+            Peças exclusivas que refletem a autenticidade da cultura urbana.<br />
+            Qualidade e estilo premium.
+          </p>
+          <Link to="/catalogo">
+            <Button
+              size="lg"
+              className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:scale-105 transition-transform animate-fade-in-up"
+            >
+              EXPLORAR COLEÇÃO →
+            </Button>
+          </Link>
+        </section>
+        
+        <hr className="my-8 border-gray-700" />
+        
+        
 
         {/* Destaques */}
         <section className="container mx-auto px-4 py-20">
@@ -254,7 +258,8 @@ const Home = () => {
           <p className="text-lg md:text-xl text-center text-gray-300 mb-8">
             Encontre exatamente o que define seu estilo
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {/* Grid for md+ screens */}
+          <div className="hidden md:grid grid-cols-2 md:grid-cols-4 gap-6">
             {categories.map((category, index) => (
               <Link
                 key={category.id}
@@ -264,7 +269,6 @@ const Home = () => {
               >
                 <div className="bg-card border border-border overflow-hidden hover:border-primary transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
                   <div className="aspect-square bg-muted flex items-center justify-center p-8 overflow-hidden">
-                    {/* Using 'logo' as a placeholder image for categories */}
                     <img
                       src={category.image || logo}
                       alt={category.name}
@@ -279,6 +283,38 @@ const Home = () => {
                 </div>
               </Link>
             ))}
+          </div>
+
+          {/* Carousel for small screens */}
+          <div className="md:hidden">
+            <Carousel className="w-full">
+              <CarouselContent>
+                {categories.map((category, index) => (
+                  <CarouselItem key={category.id}>
+                    <Link to={`/categoria/${category.slug}`} className="block px-4">
+                      <div className="mx-auto w-[85%] bg-card border border-border overflow-hidden rounded-lg">
+                        <div className="aspect-square bg-muted flex items-center justify-center p-6 overflow-hidden">
+                          <img
+                            src={category.image || logo}
+                            alt={category.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <div className="p-4 text-center">
+                          <h3 className="font-bold text-lg uppercase tracking-wide">
+                            {category.name}
+                          </h3>
+                        </div>
+                      </div>
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex items-center justify-between px-4 mt-4">
+                <CarouselPrevious />
+                <CarouselNext />
+              </div>
+            </Carousel>
           </div>
         </section>
         <Footer />

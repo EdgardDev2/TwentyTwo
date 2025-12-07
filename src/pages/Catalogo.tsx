@@ -76,23 +76,23 @@ const Catalogo = () => {
             <p className="text-muted-foreground">Carregando produtos...</p>
           </div>
         ) : filtered && filtered.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filtered.map((product, index) => (
-              <div
-                key={product.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <ProductCard
-                  id={product.id}
-                  name={product.name}
-                  price={Number(product.price)}
-                  image={product.image_url || "/placeholder.svg"}
-                  categoryName={product.categories?.name || categories.find((c) => c.id === product.category_id)?.name || "Sem categoria"}
-                />
-              </div>
-            ))}
-          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  {filtered.map((product, index) => (
+    <div
+      key={product.id}
+      className="animate-fade-in-up"
+      style={{ animationDelay: `${index * 100}ms` }}
+    >
+      <ProductCard
+        id={product.id}
+        name={product.name}
+        price={Number(product.price)}
+        image={product.image_url || "/placeholder.svg"}
+        categoryName={product.categories?.name || categories.find((c) => c.id === product.category_id)?.name || "Sem categoria"}
+      />
+    </div>
+  ))}
+</div>
         ) : (
           <div className="flex items-center justify-center py-12">
             <p className="text-muted-foreground">Nenhum produto disponível no momento.</p>

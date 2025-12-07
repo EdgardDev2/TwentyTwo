@@ -27,9 +27,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 
-const Produtos = () => {
+const Produtos: React.FC = () => {
   const { isLoading: authLoading } = useAdminAuth();
   const { data: products, isLoading: productsLoading } = useProducts();
+
   const [searchTerm, setSearchTerm] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -48,12 +49,17 @@ const Produtos = () => {
     description: "",
     category_id: "",
   });
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [categorySubmitting, setCategorySubmitting] = useState(false);
+
+  // MOBILE SIDEBAR
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -70,7 +76,6 @@ const Produtos = () => {
       return () => URL.revokeObjectURL(url);
     }
 
-    // if no selected file and editing an existing product, show its image
     if (editingProduct && editingProduct.image_url) {
       setPreviewUrl(editingProduct.image_url);
     } else if (!editingProduct) {
@@ -81,26 +86,35 @@ const Produtos = () => {
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) return;
     setCategorySubmitting(true);
+
     const slug = newCategoryName.trim().toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-");
-    const { data, error } = await supabase.from("categories").insert({ name: newCategoryName.trim(), slug }).select().single();
+
+    const { data, error } = await supabase
+      .from("categories")
+      .insert({ name: newCategoryName.trim(), slug })
+      .select()
+      .single();
+
     setCategorySubmitting(false);
+
     if (error) {
       toast({ title: "Erro", description: error.message });
       return;
     }
 
-    // update local categories and set the newly created category as selected
     if (data) {
       setCategories((prev) => [...(prev || []), { id: data.id, name: data.name }]);
       setForm((f) => ({ ...f, category_id: data.id }));
     }
+
     setNewCategoryName("");
     setCategoryModalOpen(false);
     queryClient.invalidateQueries({ queryKey: ["categories"] });
+
     toast({ title: "Categoria criada", description: `Categoria "${data?.name}" adicionada.` });
   };
 
-  const filteredProducts = products?.filter(product =>
+  const filteredProducts = products?.filter((product: any) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -111,17 +125,46 @@ const Produtos = () => {
       </div>
     );
   }
+
   return (
-    <div className="flex min-h-screen">
-      <AdminSidebar />
-      
+    <div className="min-h-screen flex">
+
+      {/* MOBILE SIDEBAR BUTTON */}
+      <button
+        className="lg:hidden fixed top-4 left-4 z-50 bg-white/10 text-white px-4 py-2 rounded-lg border border-white/10 backdrop-blur-md"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label="Abrir menu"
+      >
+        Menu
+      </button>
+
+      {/* OVERLAY quando sidebar aberta (mobile) */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden
+        />
+      )}
+
+      {/* SIDEBAR */}
+      <div
+        className={`
+          fixed lg:static top-0 left-0 h-full transition-transform duration-300 z-40
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
+      >
+        <AdminSidebar />
+      </div>
+
       <main className="flex-1 p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold uppercase tracking-wide text-muted-foreground">Gerenciar Produtos</h1>
             <p className="text-muted-foreground">{products?.length || 0} produtos cadastrados</p>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
+
+          <Dialog open={open} onOpenChange={(val) => { setOpen(val); if (!val) { setEditingProduct(null); setSelectedFile(null); setPreviewUrl(null); } }}>
             <DialogTrigger asChild>
               <Button className="uppercase">
                 <Plus className="h-4 w-4 mr-2" />
@@ -131,19 +174,18 @@ const Produtos = () => {
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Adicionar Produto</DialogTitle>
-                <DialogDescription>Preencha as informações do novo produto.</DialogDescription>
+                <DialogTitle>{editingProduct ? "Editar Produto" : "Adicionar Produto"}</DialogTitle>
+                <DialogDescription>
+                  Preencha as informações do novo produto.
+                </DialogDescription>
               </DialogHeader>
-              {/* If editingProduct is set, modal will be used for editing */}
-              <DialogDescription className="sr-only">{editingProduct ? "Editar produto" : "Adicionar produto"}</DialogDescription>
-            
+
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
                   setSubmitting(true);
                   let imageUrl = form.image_url || null;
 
-                  // simulate progress if there's a selected file
                   let progressInterval: any = null;
                   if (selectedFile) {
                     setUploadProgress(0);
@@ -155,7 +197,6 @@ const Produtos = () => {
                       });
                     }, 300);
 
-                    // attempt upload to 'product-images' bucket - ensure this bucket exists in your Supabase project
                     const fileExt = selectedFile.name.split(".").pop();
                     const fileName = `products/${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
                     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -172,7 +213,7 @@ const Produtos = () => {
 
                     const { data: publicData } = await supabase.storage.from("product-images").getPublicUrl(uploadData.path || fileName);
                     imageUrl = publicData?.publicUrl || null;
-                    // finish progress
+
                     if (progressInterval) clearInterval(progressInterval);
                     setUploadProgress(100);
                   }
@@ -200,7 +241,10 @@ const Produtos = () => {
                     return;
                   }
 
-                  toast({ title: editingProduct ? "Produto atualizado" : "Produto adicionado", description: editingProduct ? "Alterações salvas." : "Produto criado com sucesso." });
+                  toast({
+                    title: editingProduct ? "Produto atualizado" : "Produto adicionado",
+                    description: editingProduct ? "Alterações salvas." : "Produto criado com sucesso.",
+                  });
                   queryClient.invalidateQueries({ queryKey: ["products"] });
                   setOpen(false);
                   setSelectedFile(null);
@@ -229,7 +273,7 @@ const Produtos = () => {
                       <Label>Categoria</Label>
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <Select onValueChange={(val) => setForm({ ...form, category_id: val })}>
+                          <Select onValueChange={(val) => setForm({ ...form, category_id: val })} value={form.category_id}>
                             <SelectTrigger>
                               <SelectValue>{categories.find((c) => c.id === form.category_id)?.name || "Selecione"}</SelectValue>
                             </SelectTrigger>
@@ -287,7 +331,7 @@ const Produtos = () => {
                     <Button type="submit" disabled={submitting}>
                       Salvar
                     </Button>
-                    <Button variant="outline" onClick={() => { setOpen(false); setSelectedFile(null); }} type="button">
+                    <Button variant="outline" onClick={() => { setOpen(false); setSelectedFile(null); setEditingProduct(null); }} type="button">
                       Cancelar
                     </Button>
                   </DialogFooter>
@@ -295,37 +339,39 @@ const Produtos = () => {
               </form>
             </DialogContent>
           </Dialog>
-            <Dialog open={categoryModalOpen} onOpenChange={setCategoryModalOpen}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Adicionar Categoria</DialogTitle>
-                  <DialogDescription>Crie uma nova categoria para poder selecioná-la no produto.</DialogDescription>
-                </DialogHeader>
-                <form onSubmit={async (e) => { e.preventDefault(); await handleAddCategory(); }}>
-                  <div className="grid gap-2">
-                    <div>
-                      <Label>Nome da categoria</Label>
-                      <Input value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} required />
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit" disabled={categorySubmitting}>
-                        Salvar
-                      </Button>
-                      <Button variant="outline" onClick={() => setCategoryModalOpen(false)} type="button">
-                        Cancelar
-                      </Button>
-                    </DialogFooter>
+
+          {/* Modal de categoria */}
+          <Dialog open={categoryModalOpen} onOpenChange={setCategoryModalOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Adicionar Categoria</DialogTitle>
+                <DialogDescription>Crie uma nova categoria para poder selecioná-la no produto.</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={async (e) => { e.preventDefault(); await handleAddCategory(); }}>
+                <div className="grid gap-2">
+                  <div>
+                    <Label>Nome da categoria</Label>
+                    <Input value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} required />
                   </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+                  <DialogFooter>
+                    <Button type="submit" disabled={categorySubmitting}>
+                      Salvar
+                    </Button>
+                    <Button variant="outline" onClick={() => setCategoryModalOpen(false)} type="button">
+                      Cancelar
+                    </Button>
+                  </DialogFooter>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="bg-card border border-border rounded-lg p-6 mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar produtos..." 
+            <Input
+              placeholder="Buscar produtos..."
               className="pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -347,14 +393,14 @@ const Produtos = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredProducts?.map((product) => (
+              {filteredProducts?.map((product: any) => (
                 <tr key={product.id} className="border-b border-border last:border-0">
-                  <td className="p-4 text-muted-foreground">#{product.id.slice(0, 8).toUpperCase()}</td>
+                  <td className="p-4 text-muted-foreground">#{String(product.id).slice(0, 8).toUpperCase()}</td>
                   <td className="p-4">
-                    <img 
-                      src={product.image_url || "/placeholder.svg"} 
-                      alt={product.name} 
-                      className="w-12 h-12 object-contain bg-muted rounded" 
+                    <img
+                      src={product.image_url || "/placeholder.svg"}
+                      alt={product.name}
+                      className="w-12 h-12 object-contain bg-muted rounded"
                     />
                   </td>
                   <td className="p-4 font-medium">{product.name}</td>
@@ -369,7 +415,6 @@ const Produtos = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          // populate modal for editing
                           setEditingProduct(product);
                           setForm({
                             name: product.name || "",
