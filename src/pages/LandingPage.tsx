@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import bgImage from "@/assets/hero-bg.jpg";
+import bgImage from "@/assets/Landing.jpeg";
 import logo from "@/assets/logo.png";
 
 export default function LandingPage() {
