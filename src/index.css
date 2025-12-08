@@ -54,6 +54,14 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+
+@layer base {
+  html {
+    @apply font-sans;
+    font-weight: 300; /* Oswald Light */
+  }
+}
+
   body {
     @apply bg-background text-foreground;
   }
