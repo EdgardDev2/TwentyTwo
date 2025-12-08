@@ -40,31 +40,30 @@ const Blog = () => {
           </div>
 
           {/* CARROSSEL */}
-          <div className="mt-16 w-full max-w-3xl mx-auto">
-            <Carousel className="w-full">
+          <div className="mt-16 w-full max-w-4xl mx-auto">
+            <Carousel className="w-full animate-fade-in">
               <CarouselContent>
-                <CarouselItem className="basis-full">
-                  <img src={img1} className="rounded-xl w-full h-[450px] md:h-[710px] object-cover shadow-lg" />
-                </CarouselItem>
-
-                <CarouselItem className="basis-full">
-                  <img src={img2} className="rounded-xl w-full h-[450px] md:h-[710px] object-cover shadow-lg" />
-                </CarouselItem>
-
-                <CarouselItem className="basis-full">
-                  <img src={img3} className="rounded-xl w-full h-[450px] md:h-[710px] object-cover shadow-lg" />
-                </CarouselItem>
-
-                <CarouselItem className="basis-full">
-                  <img src={img4} className="rounded-xl w-full h-[450px] md:h-[710px] object-cover shadow-lg" />
-                </CarouselItem>
+                {[img1, img2, img3, img4].map((image, index) => (
+                  <CarouselItem key={index} className="basis-full">
+                    <div
+                      className="relative h-[75vh] md:h-[90vh] w-full rounded-xl shadow-lg"
+                      style={{
+                        backgroundImage: `linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.15)), url(${image})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    ></div>
+                  </CarouselItem>
+                ))}
               </CarouselContent>
 
-              <CarouselPrevious />
-              <CarouselNext />
+              <CarouselPrevious className="left-4" />
+              <CarouselNext className="right-4" />
             </Carousel>
           </div>
           {/* FIM DO CARROSSEL */}
+
         </section>
       </main>
 
