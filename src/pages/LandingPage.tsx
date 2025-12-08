@@ -37,7 +37,8 @@ export default function LandingPage() {
         <div className="mt-10 w-full flex justify-center">
           <Link
             to="/home"
-            className="bg-white text-black font-semibold text-lg px-8 py-3 rounded-xl shadow-md hover:scale-105 transition"
+            className="bg-white/20 backdrop-blur-md text-white font-semibold text-lg px-8 py-3 rounded-xl shadow-lg border border-white/30 hover:bg-white/30 hover:scale-105 transition"
+
           >
             Visite a nossa loja
           </Link>

@@ -165,14 +165,6 @@ const Home = () => {
                       backgroundPosition: "center",
                     }}
                   >
-                    <div className="text-center space-y-6 px-4 animate-fade-in-up">
-                      <h2 className="text-5xl md:text-7xl font-bold tracking-wider">
-                        LIFESTYLE
-                      </h2>
-                      <p className="text-xl md:text-2xl text-muted-foreground tracking-wide">
-                        A Vida Real está nas Ruas
-                      </p>
-                    </div>
                   </div>
                 </CarouselItem>
               ))}
@@ -185,37 +177,8 @@ const Home = () => {
 
         <hr className="my-8 border-gray-700" />
 
-        {/* ===========================
-            SESSÃO PRINCIPAL
-        ============================ */}
-        <section className="pt-20 flex flex-col items-center text-center min-h-[90vh] px-6">
-          <img
-            src={logo}
-            alt="Twenty Two Imports"
-            className="w-[260px] md:w-[320px] mb-8 animate-fade-in"
-          />
-
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up">
-            A Vida Real está nas Ruas
-          </h1>
-
-          <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl animate-fade-in-up">
-            Peças exclusivas que refletem a autenticidade da cultura urbana.
-            <br /> Qualidade e estilo premium.
-          </p>
-
-          <Link to="/catalogo">
-            <Button className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:scale-105 transition-transform">
-              EXPLORAR COLEÇÃO →
-            </Button>
-          </Link>
-        </section>
-
-        <hr className="my-8 border-gray-700" />
-
-        {/* ===========================
-            DESTAQUES
-        ============================ */}
+        
+        {/* DESTAQUES  */}
         <section className="container mx-auto px-4 py-20">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12">
             <div>
@@ -291,29 +254,63 @@ const Home = () => {
     ))}
   </div>
 
-  {/* CAROUSEL - MOBILE */}
-  <div className="md:hidden overflow-hidden">
+  {/* MOBILE - lista ou carrossel automaticamente */}
+<div className="md:hidden px-2">
+  {categories.length <= 4 ? (
+    /* ======== MODO LISTA (igual ao exemplo) ======== */
+    <div className="overflow-x-auto overflow-y-hidden">
+      <div className="flex gap-4 py-4">
+        {categories.map((category) => (
+          <Link
+            key={category.id}
+            to={`/categoria/${category.slug}`}
+            className="flex-shrink-0 w-[130px]"
+          >
+            <div className="bg-card border border-border overflow-hidden rounded-lg">
+              
+              {/* Imagem menor */}
+              <div className="w-full h-[100px] bg-muted flex items-center justify-center overflow-hidden rounded-md">
+                <img
+                  src={category.image || logo}
+                  alt={category.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Nome */}
+              <div className="p-2 text-center">
+                <h3 className="font-semibold text-sm uppercase tracking-wide">
+                  {category.name}
+                </h3>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  ) : (
+    /* ======== MODO CARROSSEL AUTOMÁTICO ======== */
     <Carousel className="w-full">
       <CarouselContent>
-        {categories.map((category, index) => (
+        {categories.map((category) => (
           <CarouselItem
             key={category.id}
             className="flex justify-center px-2"
           >
             <Link
               to={`/categoria/${category.slug}`}
-              className="block w-[88%] max-w-[320px]"
+              className="block w-[88%] max-w-[240px]"
             >
               <div className="bg-card border border-border overflow-hidden rounded-lg">
-                <div className="aspect-square bg-muted flex items-center justify-center p-6 overflow-hidden">
+                <div className="w-full h-[120px] bg-muted flex items-center justify-center overflow-hidden rounded-md">
                   <img
                     src={category.image || logo}
                     alt={category.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="p-4 text-center">
-                  <h3 className="font-bold text-lg uppercase tracking-wide">
+                <div className="p-3 text-center">
+                  <h3 className="font-semibold text-sm uppercase tracking-wide">
                     {category.name}
                   </h3>
                 </div>
@@ -328,7 +325,36 @@ const Home = () => {
         <CarouselNext />
       </div>
     </Carousel>
-  </div>
+  )}
+</div>
+
+
+{/* SESSÃO PRINCIPAL */}
+        <section className="pt-20 flex flex-col items-center text-center min-h-[90vh] px-6">
+          <img
+            src={logo}
+            alt="Twenty Two Imports"
+            className="w-[260px] md:w-[320px] mb-8 animate-fade-in"
+          />
+
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up">
+            A Vida Real está nas Ruas
+          </h1>
+
+          <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl animate-fade-in-up">
+            Peças exclusivas que refletem a autenticidade da cultura urbana.
+            <br /> Qualidade e estilo premium.
+          </p>
+
+          <Link to="/catalogo">
+            <Button className="bg-white text-black font-semibold px-8 py-4 rounded-full hover:scale-105 transition-transform">
+              EXPLORAR COLEÇÃO →
+            </Button>
+          </Link>
+        </section>
+
+        <hr className="my-8 border-gray-700" />
+
 </section>
 
 
