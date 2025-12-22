@@ -1,4 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 type OrderItemInput = {
@@ -11,7 +11,7 @@ type OrderItemInput = {
 export const useOrderActions = () => {
   const qc = useQueryClient();
 
-  const createOrder = async (payload: {
+  const createOrderFn = async (payload: {
     customer_name: string;
     customer_email?: string | null;
     customer_phone?: string | null;
@@ -76,36 +76,41 @@ export const useOrderActions = () => {
       })
     );
 
-    qc.invalidateQueries(["orders"]);
-    qc.invalidateQueries(["products"]);
-
     return orderData;
   };
 
+  const createOrder = useMutation({
+    mutationFn: createOrderFn,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+
   const cancelOrder = async (orderId: string) => {
-    const { data: items, error } = await supabase
+    const { data: orderItems, error: itemsError } = await supabase
       .from("order_items")
       .select("product_id,quantity")
       .eq("order_id", orderId);
 
-    if (error) throw error;
+    if (itemsError) throw itemsError;
 
-    for (const it of items || []) {
+    for (const it of orderItems || []) {
       if (!it.product_id) continue;
-      const { data: prod } = await supabase
+      const { data: prodData } = await supabase
         .from("products")
         .select("stock")
         .eq("id", it.product_id)
         .single();
-      const newStock = (prod?.stock || 0) + it.quantity;
+      const newStock = (prodData?.stock || 0) + it.quantity;
       await supabase.from("products").update({ stock: newStock }).eq("id", it.product_id);
     }
 
     const { error: orderErr } = await supabase.from("orders").update({ status: "cancelled" }).eq("id", orderId);
     if (orderErr) throw orderErr;
 
-    qc.invalidateQueries(["orders"]);
-    qc.invalidateQueries(["products"]);
+    qc.invalidateQueries({ queryKey: ["orders"] });
+    qc.invalidateQueries({ queryKey: ["products"] });
 
     return true;
   };
