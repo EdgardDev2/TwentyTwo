@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import bgImage from "@/assets/Landing.jpeg";
 import logo from "@/assets/logo.png";
+import Instagram_logo from "@/assets/Instagram_logo.png";
 
 export default function LandingPage() {
   return (
@@ -21,6 +22,7 @@ export default function LandingPage() {
           className="flex items-center justify-center w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition shadow-lg"
           aria-label="Instagram"
         >
+          <img src={Instagram_logo} alt="Instagram Logo" className="w-8 h-8" />
           <i className="fa-brands fa-instagram text-white text-2xl"></i>
         </a>
       </header>
