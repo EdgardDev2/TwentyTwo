@@ -61,7 +61,13 @@ const Categoria = () => {
                 className="animate-fade-in-up"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <ProductCard id={product.id} name={product.name} price={product.price} image={product.image_url} />
+                <ProductCard
+                  id={product.id}
+                  name={product.name}
+                  image={product.image_url || "/placeholder.svg"}
+                  originalPrice={Number(product.price)}
+                  discountPercent={Number(product.discount_percent) || 0}
+                />
               </div>
             ))}
           </div>

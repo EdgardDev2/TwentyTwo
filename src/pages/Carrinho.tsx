@@ -51,7 +51,7 @@ const Carrinho = () => {
             <p className="text-muted-foreground mb-8 animate-fade-in-up [animation-delay:200ms]">Adicione produtos para começar suas compras</p>
             <Button 
               onClick={() => window.location.href = "/catalogo"}
-              className="animate-fade-in-up [animation-delay:400ms] hover:scale-105 transition-transform"
+              className="animate-fade-in-up [animation-delay:400ms] hover:scale-105 transition-transform w-full sm:w-auto"
             >
               Ver Catálogo
             </Button>
@@ -79,8 +79,8 @@ const Carrinho = () => {
                 className="bg-card border border-border p-6 animate-fade-in-up hover:border-primary transition-all"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex gap-6">
-                  <img src={item.image} alt={item.name} className="w-24 h-24 object-contain bg-muted" />
+                <div className="flex flex-col sm:flex-row gap-6">
+                  <img src={item.image} alt={item.name} className="w-20 h-20 sm:w-24 sm:h-24 object-contain bg-muted" />
                   <div className="flex-1">
                     <h3 className="font-medium mb-1">{item.name}</h3>
                     <div className="flex gap-2 mb-3">
@@ -91,7 +91,7 @@ const Carrinho = () => {
                         <span className="text-xs px-2 py-1 bg-secondary rounded">Cor: {item.color}</span>
                       )}
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <span className="text-sm text-muted-foreground">Quantidade:</span>
                         <div className="flex items-center border border-border rounded">
@@ -123,7 +123,7 @@ const Carrinho = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="text-destructive"
+                    className="text-destructive self-start sm:self-auto mt-2 sm:mt-0"
                     onClick={() => removeItem(item.id)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -134,7 +134,7 @@ const Carrinho = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="bg-card border border-border p-6 animate-fade-in-up [animation-delay:400ms]">
+            <div className="bg-card border border-border p-6 animate-fade-in-up [animation-delay:400ms] lg:sticky lg:top-28 lg:self-start">
               <h2 className="text-xl font-bold mb-6 uppercase tracking-wide">Resumo do Pedido</h2>
               
               <div className="space-y-3 mb-6">
@@ -150,13 +150,13 @@ const Carrinho = () => {
 
               <div className="mb-6">
                 <label className="text-sm text-muted-foreground mb-2 block">Cupom de Desconto</label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input 
                     placeholder="Digite o cupom" 
                     value={coupon}
                     onChange={(e) => setCoupon(e.target.value)}
                   />
-                  <Button variant="outline">Aplicar</Button>
+                  <Button variant="outline" className="w-full sm:w-auto">Aplicar</Button>
                 </div>
               </div>
 
