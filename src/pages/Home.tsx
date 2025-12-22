@@ -30,7 +30,13 @@ const Home = () => {
   >([]);
 
   const [topProducts, setTopProducts] = useState<
-    Array<{ id: string; name: string; price: number; image: string }>
+    Array<{
+      id: string;
+      name: string;
+      price: number;
+      originalPrice: number;
+      image: string;
+    }>
   >([]);
 
   /* =======================
@@ -123,6 +129,7 @@ const Home = () => {
                 id: p.id,
                 name: p.name,
                 price: p.price,
+                originalPrice: p.price,
                 image: p.image_url || logo,
               }
             : null;
