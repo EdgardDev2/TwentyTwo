@@ -17,20 +17,32 @@ import { Search } from "lucide-react";
 const Catalogo = () => {
   const { data: products, isLoading } = useProducts();
   const [searchTerm, setSearchTerm] = useState("");
-  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const [categories, setCategories] = useState<
+    Array<{ id: string; name: string }>
+  >([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data } = await supabase.from("categories").select("id,name").order("name");
+      const { data } = await supabase
+        .from("categories")
+        .select("id,name")
+        .order("name");
+
       setCategories(data || []);
     };
+
     fetchCategories();
   }, []);
 
   const filtered = (products || []).filter((p) => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || p.category_id === selectedCategory;
+    const matchesSearch = p.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "all" || p.category_id === selectedCategory;
+
     return matchesSearch && matchesCategory;
   });
 
@@ -39,8 +51,11 @@ const Catalogo = () => {
       <Header />
 
       <main className="container mx-auto px-4 pt-24 pb-12">
-        <h1 className="text-4xl font-bold mb-6 uppercase tracking-wide animate-fade-in-up">Catálogo</h1>
+        <h1 className="text-4xl font-bold mb-6 uppercase tracking-wide animate-fade-in-up">
+          Catálogo
+        </h1>
 
+        {/* FILTROS */}
         <div className="bg-card border border-border rounded-lg p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
             <div className="md:col-span-2 relative">
@@ -53,49 +68,63 @@ const Catalogo = () => {
               />
             </div>
 
-            <div className="w-full">
-              <Select value={selectedCategory} onValueChange={(val) => setSelectedCategory(val)}>
-                <SelectTrigger>
-                  <SelectValue>{selectedCategory === "all" ? "Todas as categorias" : categories.find((c) => c.id === selectedCategory)?.name}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas as categorias</SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select
+              value={selectedCategory}
+              onValueChange={(val) => setSelectedCategory(val)}
+            >
+              <SelectTrigger>
+                <SelectValue>
+                  {selectedCategory === "all"
+                    ? "Todas as categorias"
+                    : categories.find((c) => c.id === selectedCategory)?.name}
+                </SelectValue>
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="all">Todas as categorias</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
+        {/* LISTAGEM */}
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <p className="text-muted-foreground">Carregando produtos...</p>
           </div>
-        ) : filtered && filtered.length > 0 ? (
+        ) : filtered.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-  {filtered.map((product, index) => (
-    <div
-      key={product.id}
-      className="animate-fade-in-up"
-      style={{ animationDelay: `${index * 100}ms` }}
-    >
-      <ProductCard
-        id={product.id}
-        name={product.name}
-        price={Number(product.price)}
-        image={product.image_url || "/placeholder.svg"}
-        categoryName={product.categories?.name || categories.find((c) => c.id === product.category_id)?.name || "Sem categoria"}
-      />
-    </div>
-  ))}
-</div>
+            {filtered.map((product, index) => (
+              <div
+                key={product.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <ProductCard
+                  id={product.id}
+                  name={product.name}
+                  image={product.image_url || "/placeholder.svg"}
+                  originalPrice={Number(product.price)}
+                  discountPercent={Number(product.discount_percent) || 0}
+                  categoryName={
+                    product.categories?.name ||
+                    categories.find((c) => c.id === product.category_id)?.name ||
+                    "Sem categoria"
+                  }
+                />
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="flex items-center justify-center py-12">
-            <p className="text-muted-foreground">Nenhum produto disponível no momento.</p>
+            <p className="text-muted-foreground">
+              Nenhum produto disponível no momento.
+            </p>
           </div>
         )}
       </main>

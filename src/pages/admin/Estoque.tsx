@@ -112,73 +112,122 @@ const Estoque = () => {
           </div>
         )}
 
-        {/* TABLE */}
-        <div className="overflow-x-auto bg-[#141414] border border-[#2a2a2a] rounded-lg">
-          <table className="w-full">
-            <thead className="border-b border-[#2a2a2a]">
-              <tr>
-                <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">Produto</th>
-                <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">SKU</th>
-                <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">Categoria</th>
-                <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">Estoque Atual</th>
-                <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products?.map((product) => (
-                <tr key={product.id} className="border-b border-[#2a2a2a] last:border-0">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={product.image_url || "/placeholder.svg"}
-                        alt={product.name}
-                        className="w-12 h-12 object-contain bg-[#1c1c1c] rounded"
-                      />
-                      <div>
-                        <p className="font-medium">{product.name}</p>
-                        <p className="text-sm text-white/60">#{product.id.slice(0, 8).toUpperCase()}</p>
-                      </div>
-                    </div>
-                  </td>
+        {/* LIST (mobile) + TABLE (desktop) */}
+        <div className="mb-4">
+          {/* Mobile: stacked cards */}
+          <div className="space-y-4 md:hidden">
+            {products?.map((product) => (
+              <div
+                key={product.id}
+                className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-lg p-3 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={product.image_url || "/placeholder.svg"}
+                    alt={product.name}
+                    className="w-14 h-14 object-contain bg-[#1c1c1c] rounded"
+                  />
 
-                  <td className="p-4 text-white/60">{product.id.slice(0, 8).toUpperCase()}</td>
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{product.name}</p>
+                    <p className="text-xs text-white/60 truncate">#{product.id.slice(0, 8).toUpperCase()}</p>
+                    <p className="text-xs text-white/60 truncate">{product.categories?.name || "Sem categoria"}</p>
+                  </div>
+                </div>
 
-                  <td className="p-4 text-white/60">
-                    {product.categories?.name || "Sem categoria"}
-                  </td>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold">{product.stock}</span>
+                    {product.stock < 10 && (
+                      <Badge variant="destructive" className="text-xs">Baixo</Badge>
+                    )}
+                  </div>
 
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold">{product.stock}</span>
-                      {product.stock < 10 && (
-                        <Badge variant="destructive" className="text-xs">Baixo Estoque</Badge>
-                      )}
-                    </div>
-                  </td>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setQuantity("10");
+                      setDialogOpen(true);
+                    }}
+                  >
+                    <Package className="h-4 w-4 mr-2" />
+                    Repor
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
 
-                  <td className="p-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedProduct(product);
-                        setQuantity("10");
-                        setDialogOpen(true);
-                      }}
-                    >
-                      <Package className="h-4 w-4 mr-2" />
-                      Repor
-                    </Button>
-                  </td>
+          {/* Desktop: table view */}
+          <div className="hidden md:block overflow-x-auto bg-[#141414] border border-[#2a2a2a] rounded-lg">
+            <table className="w-full">
+              <thead className="border-b border-[#2a2a2a]">
+                <tr>
+                  <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">Produto</th>
+                  <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">SKU</th>
+                  <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">Categoria</th>
+                  <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">Estoque Atual</th>
+                  <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-white/60">Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {products?.map((product) => (
+                  <tr key={product.id} className="border-b border-[#2a2a2a] last:border-0">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={product.image_url || "/placeholder.svg"}
+                          alt={product.name}
+                          className="w-12 h-12 object-contain bg-[#1c1c1c] rounded"
+                        />
+                        <div>
+                          <p className="font-medium">{product.name}</p>
+                          <p className="text-sm text-white/60">#{product.id.slice(0, 8).toUpperCase()}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="p-4 text-white/60">{product.id.slice(0, 8).toUpperCase()}</td>
+
+                    <td className="p-4 text-white/60">
+                      {product.categories?.name || "Sem categoria"}
+                    </td>
+
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold">{product.stock}</span>
+                        {product.stock < 10 && (
+                          <Badge variant="destructive" className="text-xs">Baixo Estoque</Badge>
+                        )}
+                      </div>
+                    </td>
+
+                    <td className="p-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setQuantity("10");
+                          setDialogOpen(true);
+                        }}
+                      >
+                        <Package className="h-4 w-4 mr-2" />
+                        Repor
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* DIALOG */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
+          <DialogContent className="sm:max-w-lg w-[95%]">
             <DialogHeader>
               <DialogTitle>Repor estoque</DialogTitle>
               <DialogDescription>Informe a quantidade desejada.</DialogDescription>
@@ -214,6 +263,7 @@ const Estoque = () => {
                   min={1}
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
+                  className="w-full"
                 />
               </div>
             </div>

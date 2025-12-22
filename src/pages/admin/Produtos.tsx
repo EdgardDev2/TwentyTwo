@@ -48,6 +48,7 @@ const Produtos: React.FC = () => {
     image_url: "",
     description: "",
     category_id: "",
+    discount_percent: "0",
   });
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -157,10 +158,10 @@ const Produtos: React.FC = () => {
         <AdminSidebar />
       </div>
 
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold uppercase tracking-wide text-muted-foreground">Gerenciar Produtos</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold uppercase tracking-wide text-muted-foreground">Gerenciar Produtos</h1>
             <p className="text-muted-foreground">{products?.length || 0} produtos cadastrados</p>
           </div>
 
@@ -225,6 +226,7 @@ const Produtos: React.FC = () => {
                     image_url: imageUrl,
                     description: form.description || null,
                     category_id: form.category_id || null,
+                    discount_percent: Number(form.discount_percent) || 0,
                   } as any;
 
                   let res;
@@ -249,11 +251,11 @@ const Produtos: React.FC = () => {
                   setOpen(false);
                   setSelectedFile(null);
                   setEditingProduct(null);
-                  setForm({ name: "", price: "0.00", stock: "0", image_url: "", description: "", category_id: "" });
+                  setForm({ name: "", price: "0.00", stock: "0", image_url: "", description: "", category_id: "", discount_percent: "0" });
                 }}
               >
                 <div className="grid gap-2">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label>Nome</Label>
                       <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -264,7 +266,19 @@ const Produtos: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Desconto (%)</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={form.discount_percent}
+                      onChange={(e) => setForm({ ...form, discount_percent: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label>Estoque</Label>
                       <Input value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
@@ -311,7 +325,7 @@ const Produtos: React.FC = () => {
                   {previewUrl ? (
                     <div className="mt-2">
                       <Label>Pré-visualização</Label>
-                      <img src={previewUrl} alt="preview" className="w-48 h-48 object-contain rounded bg-muted p-2 mt-2" />
+                      <img src={previewUrl} alt="preview" className="w-full sm:w-48 h-48 object-contain rounded bg-muted p-2 mt-2" />
                     </div>
                   ) : null}
 
@@ -379,8 +393,8 @@ const Produtos: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg overflow-hidden">
-          <table className="w-full">
+        <div className="bg-card border border-border rounded-lg overflow-hidden hidden lg:block">
+          <table className="w-full table-auto">
             <thead className="border-b border-border">
               <tr>
                 <th className="text-left p-4 text-sm font-bold uppercase tracking-wide text-muted-foreground">ID</th>
@@ -423,6 +437,7 @@ const Produtos: React.FC = () => {
                             image_url: product.image_url || "",
                             description: product.description || "",
                             category_id: product.category_id || "",
+                            discount_percent: (product.discount_percent !== undefined && product.discount_percent !== null) ? String(Number(product.discount_percent)) : "0",
                           });
                           setSelectedFile(null);
                           setOpen(true);
@@ -454,6 +469,64 @@ const Produtos: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile list view */}
+        <div className="bg-card border border-border rounded-lg lg:hidden p-4">
+          {filteredProducts?.length ? (
+            filteredProducts.map((product: any) => (
+              <div key={product.id} className="flex items-center gap-4 border-b last:border-0 p-3">
+                <img src={product.image_url || "/placeholder.svg"} alt={product.name} className="w-16 h-16 object-contain bg-muted rounded" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{product.name}</div>
+                  <div className="text-muted-foreground text-sm">{product.categories?.name || "Sem categoria"}</div>
+                  <div className="text-sm mt-1">R$ {Number(product.price).toFixed(2)} • {product.stock} em estoque</div>
+                </div>
+                <div className="flex-shrink-0 flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setEditingProduct(product);
+                      setForm({
+                        name: product.name || "",
+                        price: (Number(product.price) || 0).toFixed(2),
+                        stock: String(product.stock || 0),
+                        image_url: product.image_url || "",
+                        description: product.description || "",
+                        category_id: product.category_id || "",
+                        discount_percent: (product.discount_percent !== undefined && product.discount_percent !== null) ? String(Number(product.discount_percent)) : "0",
+                      });
+                      setSelectedFile(null);
+                      setOpen(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive"
+                    onClick={async () => {
+                      const ok = window.confirm(`Remover o produto "${product.name}"?`);
+                      if (!ok) return;
+                      const { error } = await supabase.from("products").delete().eq("id", product.id);
+                      if (error) {
+                        toast({ title: "Erro", description: error.message });
+                        return;
+                      }
+                      toast({ title: "Produto removido", description: "Produto excluído com sucesso." });
+                      queryClient.invalidateQueries({ queryKey: ["products"] });
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-4 text-muted-foreground">Nenhum produto encontrado.</div>
+          )}
         </div>
       </main>
     </div>

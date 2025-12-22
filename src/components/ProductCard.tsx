@@ -5,48 +5,93 @@ import { useCart } from "@/contexts/CartContext";
 interface ProductCardProps {
   id: string;
   name: string;
-  price: number;
   image: string;
+  originalPrice: number;
+  discountPercent?: number;
   categoryName?: string;
 }
 
-export const ProductCard = ({ id, name, price, image, categoryName }: ProductCardProps) => {
+export const ProductCard = ({
+  id,
+  name,
+  image,
+  originalPrice,
+  discountPercent,
+  categoryName,
+}: ProductCardProps) => {
   const { addItem } = useCart();
+
+  const discount = discountPercent ?? 0;
+  const finalPrice = originalPrice * (1 - discount / 100);
+  const pixPrice = finalPrice * 0.95; // 5% Pix
+  const installment = finalPrice / 12;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     addItem({
-      id: `${id}-quick`,
+      id,
       name,
-      price,
+      price: finalPrice,
       image,
     });
   };
 
   return (
-    <div className="group">
+    <div className="group bg-black text-white border border-zinc-800 hover:border-primary transition rounded-sm overflow-hidden">
       <Link to={`/produto/${id}`}>
-        <div className="bg-card border border-border overflow-hidden hover:border-primary transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1">
-          <div className="aspect-square bg-muted flex items-center justify-center p-8 overflow-hidden">
-            <img 
-              src={image} 
-              alt={name}
-              className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
-            />
-          </div>
-          <div className="p-4">
-            <h3 className="font-medium text-sm mb-1 text-muted-foreground group-hover:text-primary transition-colors">{name}</h3>
-            {categoryName ? (
-              <p className="text-xs text-muted-foreground mb-2">{categoryName}</p>
-            ) : null}
-            <p className="text-lg font-bold mb-4">R$ {price.toFixed(2)}</p>
+        {/* IMAGEM */}
+        <div className="relative aspect-square bg-zinc-900 flex items-center justify-center p-6">
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+          />
+
+          {/* TAG DESCONTO */}
+          {discount > 0 && (
+            <span className="absolute top-3 right-3 bg-primary text-black text-xs font-bold px-2 py-1">
+              -{discount}%
+            </span>
+          )}
+        </div>
+
+        {/* CONTEÚDO */}
+        <div className="p-4 space-y-2">
+          <h3 className="text-sm uppercase tracking-wide">{name}</h3>
+
+          {categoryName && (
+            <p className="text-xs text-zinc-400">{categoryName}</p>
+          )}
+
+          {/* PREÇO */}
+          <div className="space-y-1">
+            <p className="text-sm line-through text-zinc-500">
+              R$ {originalPrice.toFixed(2)}
+            </p>
+
+            <p className="text-lg font-bold">
+              R$ {finalPrice.toFixed(2)}
+              {discount > 0 && (
+                <span className="text-primary text-sm ml-2">{discount}% OFF</span>
+              )}
+            </p>
+
+            <p className="text-xs text-zinc-400">
+              R$ {pixPrice.toFixed(2)} no Pix
+            </p>
+
+            <p className="text-xs text-zinc-400">
+              12x de R$ {installment.toFixed(2)}
+            </p>
           </div>
         </div>
       </Link>
-      <div className="px-4 pb-4 -mt-4">
-        <Button 
+
+      {/* BOTÃO */}
+      <div className="p-4 pt-0">
+        <Button
           onClick={handleAddToCart}
-          className="w-full uppercase text-xs tracking-wide transition-all hover:scale-105"
+          className="w-full uppercase text-xs tracking-widest hover:scale-105 transition"
         >
           Adicionar ao Carrinho
         </Button>

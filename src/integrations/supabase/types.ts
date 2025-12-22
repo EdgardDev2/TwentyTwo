@@ -149,6 +149,7 @@ export type Database = {
           image_url: string | null
           name: string
           price: number
+          discount_percent: number | null
           stock: number
           updated_at: string
         }
