@@ -251,7 +251,7 @@ export default function LandingPage() {
             aria-label="Visite a nossa loja"
             className="bg-transparent backdrop-blur-md text-white font-semibold text-lg px-8 py-3 rounded-xl shadow-lg border border-white/30 hover:bg-white/10 hover:scale-105 transition"
           >
-            Visite a nossa loja
+            Visite a nossa loja 
           </Link>
         </main>
       </div>
