@@ -22,6 +22,15 @@ const Catalogo = () => {
   >([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
+  const isProductInStock = (p: any) => {
+    if (typeof p.in_stock === "boolean") return p.in_stock;
+    const numericFields = [p.stock, p.stock_count, p.quantity, p.inventory];
+    for (const v of numericFields) {
+      if (typeof v === "number") return v > 0;
+    }
+    return true;
+  };
+
   useEffect(() => {
     const fetchCategories = async () => {
       const { data } = await supabase
@@ -44,6 +53,13 @@ const Catalogo = () => {
       selectedCategory === "all" || p.category_id === selectedCategory;
 
     return matchesSearch && matchesCategory;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    const aOut = !isProductInStock(a);
+    const bOut = !isProductInStock(b);
+    if (aOut === bOut) return 0;
+    return aOut ? 1 : -1;
   });
 
   return (
@@ -99,7 +115,7 @@ const Catalogo = () => {
           </div>
         ) : filtered.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filtered.map((product, index) => (
+            {sorted.map((product, index) => (
               <div
                 key={product.id}
                 className="animate-fade-in-up"
@@ -116,6 +132,7 @@ const Catalogo = () => {
                     categories.find((c) => c.id === product.category_id)?.name ||
                     "Sem categoria"
                   }
+                  inStock={isProductInStock(product)}
                 />
               </div>
             ))}

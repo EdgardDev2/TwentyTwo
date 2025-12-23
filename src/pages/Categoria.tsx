@@ -31,7 +31,7 @@ const Categoria = () => {
 
       const { data: prods } = await supabase
         .from("products")
-        .select("id,name,price,image_url,created_at")
+        .select("*")
         .eq("category_id", cat.id)
         .order("created_at", { ascending: false });
 
@@ -40,6 +40,15 @@ const Categoria = () => {
 
     fetchBySlug();
   }, [categoryId]);
+
+  const isProductInStock = (p: any) => {
+    if (typeof p.in_stock === "boolean") return p.in_stock;
+    const numericFields = [p.stock, p.stock_count, p.quantity, p.inventory];
+    for (const v of numericFields) {
+      if (typeof v === "number") return v > 0;
+    }
+    return true;
+  };
 
   return (
     <div className="min-h-screen">
@@ -55,21 +64,29 @@ const Categoria = () => {
 
         {products.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product: any, index: number) => (
-              <div 
-                key={product.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <ProductCard
-                  id={product.id}
-                  name={product.name}
-                  image={product.image_url || "/placeholder.svg"}
-                  originalPrice={Number(product.price)}
-                  discountPercent={Number(product.discount_percent) || 0}
-                />
-              </div>
-            ))}
+            {[...products]
+              .sort((a, b) => {
+                const aOut = !isProductInStock(a);
+                const bOut = !isProductInStock(b);
+                if (aOut === bOut) return 0;
+                return aOut ? 1 : -1;
+              })
+              .map((product: any, index: number) => (
+                <div
+                  key={product.id}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <ProductCard
+                    id={product.id}
+                    name={product.name}
+                    image={product.image_url || "/placeholder.svg"}
+                    originalPrice={Number(product.price)}
+                    discountPercent={Number(product.discount_percent) || 0}
+                    inStock={isProductInStock(product)}
+                  />
+                </div>
+              ))}
           </div>
         ) : (
           <div className="text-center py-20 animate-fade-in">

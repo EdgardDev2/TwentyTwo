@@ -9,6 +9,7 @@ interface ProductCardProps {
   originalPrice: number;
   discountPercent?: number;
   categoryName?: string;
+  inStock?: boolean;
 }
 
 export const ProductCard = ({
@@ -18,6 +19,7 @@ export const ProductCard = ({
   originalPrice,
   discountPercent,
   categoryName,
+  inStock = true,
 }: ProductCardProps) => {
   const { addItem } = useCart();
 
@@ -28,6 +30,7 @@ export const ProductCard = ({
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!inStock) return;
     addItem({
       id,
       name,
@@ -44,13 +47,23 @@ export const ProductCard = ({
           <img
             src={image}
             alt={name}
-            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+            className={
+              "w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" +
+              (inStock ? "" : " filter grayscale blur-sm opacity-60")
+            }
           />
 
           {/* TAG DESCONTO */}
           {discount > 0 && (
             <span className="absolute top-3 right-3 bg-primary text-black text-xs font-bold px-2 py-1">
               -{discount}%
+            </span>
+          )}
+
+          {/* TAG ESGOTADO */}
+          {!inStock && (
+            <span className="absolute top-3 left-3 bg-zinc-700 text-white text-xs font-bold px-2 py-1">
+              Esgotado
             </span>
           )}
         </div>
@@ -91,9 +104,10 @@ export const ProductCard = ({
       <div className="p-4 pt-0">
         <Button
           onClick={handleAddToCart}
+          disabled={!inStock}
           className="w-full uppercase text-xs tracking-widest hover:scale-105 transition"
         >
-          Adicionar ao Carrinho
+          {inStock ? "Adicionar ao Carrinho" : "Esgotado"}
         </Button>
       </div>
     </div>
